@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <!-- Test names use underscores; tests pass literal arrays freely. -->
+    <NoWarn>$(NoWarn);CA1707;CA1861</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NKeeper.Testing" />
+    <!-- The plugin leaves the SDK to the server at run time; the parsers' own tests need it here. -->
+    <PackageReference Include="NKeeper.Abstractions" />
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <!-- The package under test is the one the plugin's build packed; the assembly is referenced too, for the parsers' own tests. -->
+  <ItemGroup>
+    <ProjectReference Include="..\backend\NKeeper.Plugins.Zabbix.csproj" />
+  </ItemGroup>
+
+</Project>

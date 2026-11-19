@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The zabbix plugin (docs/architecture.md §7.40). Built, packed and signed by NKeeper.Plugin.Build, which also
+    builds ../frontend with npm. It brings the plugin's .nkp to ../artifacts/plugins.
+  -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!-- The SDK is shared from the server, so it isn't copied into the plugin's output (plugin-security.md §7.1). -->
+    <PackageReference Include="NKeeper.Abstractions" ExcludeAssets="runtime" />
+    <PackageReference Include="NKeeper.Plugin.Build" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="NKeeper.Plugins.Zabbix.Tests" />
+  </ItemGroup>
+
+</Project>

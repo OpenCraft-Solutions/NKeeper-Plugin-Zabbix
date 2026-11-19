@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="backend/NKeeper.Plugins.Zabbix.csproj" />
+  <Project Path="tests/NKeeper.Plugins.Zabbix.Tests.csproj" />
+</Solution>

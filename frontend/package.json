@@ -1,0 +1,30 @@
+{
+  "name": "@nkeeper/plugin-zabbix",
+  "description": "The zabbix plugin's frontend: a host's Zabbix panel, and the settings panel with the comparison.",
+  "private": true,
+  "license": "MIT",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "lint": "oxlint --deny-warnings",
+    "typecheck": "tsc -b",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nkeeper/sdk": "npm:@opencraft-solutions/nkeeper-sdk@^1.13.0",
+    "react": "^19.2.8"
+  },
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "oxlint": "^1.81.0",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.5"
+  }
+}

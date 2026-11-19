@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "id": "zabbix",
+  "name": "Zabbix",
+  "version": "1.0.0",
+  "sdkVersion": ">=1.13.0 <2.0.0",
+  "builtIn": true,
+  "frontend": {
+    "entry": "frontend/index.js"
+  },
+  "backend": {
+    "entryAssembly": "backend/NKeeper.Plugins.Zabbix.dll",
+    "entryType": "NKeeper.Plugins.Zabbix.ZabbixPlugin"
+  }
+}

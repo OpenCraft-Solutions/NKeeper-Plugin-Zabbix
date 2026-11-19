@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: jobs only read the repository, and the packages the SDK comes in.
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # GitHub Packages needs a token to restore NKeeper's packages, even public ones (nuget.config, frontend/.npmrc).
+  # The workflow's own token is enough, and it only exists for this run.
+  NUGET_USERNAME: ${{ github.actor }}
+  NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    name: Build, test and pack
+    runs-on: [self-hosted, nkeeper]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install the frontend's npm packages (from the lock file)
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint the frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Type-check the frontend
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Test the frontend
+        working-directory: frontend
+        run: npm test
+
+      - name: Restore (locked)
+        run: dotnet restore NKeeper.Plugins.Zabbix.slnx --locked-mode
+
+      - name: Check formatting
+        run: dotnet format NKeeper.Plugins.Zabbix.slnx --verify-no-changes --no-restore
+
+      # Building the plugin builds its frontend, then packs the plugin and signs it with a development key made
+      # fresh for this run (plugin-security.md §10).
+      - name: Build and pack
+        run: dotnet build NKeeper.Plugins.Zabbix.slnx --no-restore --configuration Release
+
+      # The tests start NKeeper's test server (NKeeper.Testing) with the package above loaded, and a real
+      # OpenSSH server in a container; Docker is on the runner.
+      - name: Test
+        run: dotnet test NKeeper.Plugins.Zabbix.slnx --no-build --configuration Release
+
+      - name: Keep the development-signed package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: zabbix-development-package
+          path: artifacts/plugins/*.nkp
+          if-no-files-found: error
+          retention-days: 7

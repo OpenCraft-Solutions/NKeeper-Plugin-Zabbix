@@ -1,0 +1,21 @@
+<Project>
+  <!-- Central package management: every NuGet version is set here, once. -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup Label="NKeeper SDK (docs/architecture.md §9)">
+    <PackageVersion Include="NKeeper.Abstractions" Version="1.13.0" />
+    <PackageVersion Include="NKeeper.Plugin.Build" Version="1.13.0" />
+    <PackageVersion Include="NKeeper.Testing" Version="1.13.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Tests">
+    <!-- NKeeper.Testing's PostgreSQL fixture uses it without the package declaring it; the version is the one it is built with. -->
+    <PackageVersion Include="Npgsql" Version="10.0.3" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,34 @@
+# --- Secrets / local configuration ---
+.env
+.env.*
+!.env.example
+*.local.json
+secrets/
+*.pfx
+*.pem
+*.key
+*.crt
+# The development signing key the build creates (public half included)
+.dev/
+
+# --- .NET ---
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+*.trx
+coverage/
+*.coverage
+publish/
+artifacts/
+
+# --- Node / Vite ---
+node_modules/
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# --- Test output ---
+tests/e2e/*.png

@@ -1,0 +1,161 @@
+name: Release
+
+# A tag v<version> releases the plugin: zabbix-<version>.nkp, signed with the official key (architecture.md §9).
+on:
+  push:
+    tags: ['v[0-9]*']
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NUGET_USERNAME: ${{ github.actor }}
+  NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  # Everything that runs the plugin's code or its dependencies' happens here, where the official key doesn't exist.
+  verify:
+    name: Check the tag, build and test
+    runs-on: [self-hosted, nkeeper]
+    timeout-minutes: 30
+    outputs:
+      version: ${{ steps.manifest.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: The tag matches the manifest's version, and is on main
+        id: manifest
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(jq -er '.version' backend/nkeeper-plugin.json)
+          id=$(jq -er '.id' backend/nkeeper-plugin.json)
+          if [ "$id" != "zabbix" ]; then echo "The manifest's id is not zabbix." >&2; exit 1; fi
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then echo "The manifest's version is not a SemVer version." >&2; exit 1; fi
+          if [ "$TAG" != "v$version" ]; then
+            echo "The tag is $TAG but the manifest's version is $version: the tag must be v$version." >&2
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "The tagged commit is not on main." >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install the frontend's npm packages (from the lock file)
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint the frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Type-check the frontend
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Restore (locked)
+        run: dotnet restore NKeeper.Plugins.Zabbix.slnx --locked-mode
+
+      - name: Build
+        run: dotnet build NKeeper.Plugins.Zabbix.slnx --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test NKeeper.Plugins.Zabbix.slnx --no-build --configuration Release
+
+  # The only job with the official key. It needs an owner's approval (the release environment), and it builds the
+  # package again, signed, from the same commit.
+  release:
+    name: Pack, sign and publish
+    needs: verify
+    # Signing runs on the single-use runner, reset after every job, so nothing an earlier job left behind can
+    # reach the key.
+    runs-on: nkeeper-clean
+    timeout-minutes: 30
+    environment: release
+    permissions:
+      contents: write
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install the frontend's npm packages (from the lock file, without running their install scripts)
+        working-directory: frontend
+        run: npm ci --ignore-scripts
+
+      - name: Restore (locked)
+        run: dotnet restore backend/NKeeper.Plugins.Zabbix.csproj --locked-mode
+
+      # The key goes to memory-backed storage with owner-only permissions, only for this step, and is removed when
+      # it ends, whatever happens. It is passed in the environment of this step alone, never in a command line, and
+      # nothing here prints it or turns on tracing.
+      - name: Pack, signed with the official key
+        env:
+          NKEEPER_RELEASE_KEY: ${{ secrets.NKEEPER_RELEASE_KEY }}
+        run: |
+          set +x
+          umask 077
+          key_dir=$(mktemp -d -p /dev/shm)
+          trap 'rm -rf "$key_dir"' EXIT
+          printf '%s\n' "$NKEEPER_RELEASE_KEY" > "$key_dir/release.pem"
+          unset NKEEPER_RELEASE_KEY
+          dotnet build backend/NKeeper.Plugins.Zabbix.csproj --no-restore --configuration Release \
+            -p:NKeeperSigningKey="$key_dir/release.pem"
+
+      - name: Make sure no key is left behind
+        if: always()
+        run: find /dev/shm -name release.pem -delete
+
+      - name: Checksum
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          cd artifacts/plugins
+          if [ ! -f "zabbix-$VERSION.nkp" ] || [ "$(ls -1 ./*.nkp | wc -l)" -ne 1 ]; then
+            echo "Expected exactly zabbix-$VERSION.nkp in artifacts/plugins." >&2
+            exit 1
+          fi
+          sha256sum "zabbix-$VERSION.nkp" > "zabbix-$VERSION.nkp.sha256"
+          cat "zabbix-$VERSION.nkp.sha256"
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.verify.outputs.version }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          sha=$(cut -d' ' -f1 "artifacts/plugins/zabbix-$VERSION.nkp.sha256")
+          prerelease=()
+          if [[ "$VERSION" == *-* ]]; then prerelease=(--prerelease); fi
+          gh release create "$TAG" "artifacts/plugins/zabbix-$VERSION.nkp" "artifacts/plugins/zabbix-$VERSION.nkp.sha256" \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --title "zabbix $VERSION" "${prerelease[@]}" \
+            --notes "The zabbix plugin $VERSION, signed with the official key.
+
+          SHA-256 of \`zabbix-$VERSION.nkp\`: \`$sha\`"
