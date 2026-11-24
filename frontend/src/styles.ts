@@ -34,6 +34,8 @@ export const zabbixStyles = `
 .nk-zbx-input { min-height: 1.75rem; padding: 0 0.5rem; border: 1px solid var(--color-border-strong, #33456b); border-radius: var(--radius-md, 8px);
   background: var(--color-input-bg, #0b1220); color: inherit; font: inherit; }
 .nk-zbx-link { color: var(--color-accent-text, #8fb4ff); }
+.nk-zbx-plain { padding: 0; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+.nk-zbx-plain:hover { text-decoration: underline; }
 .nk-zbx-table { width: 100%; border-collapse: collapse; }
 .nk-zbx-table th, .nk-zbx-table td { padding: 0.25rem 0.5rem; border-bottom: 1px solid var(--color-border, #233150); text-align: left; vertical-align: top; }
 .nk-zbx-table th { color: var(--color-text-muted, #9aa8c1); font-weight: 600; }

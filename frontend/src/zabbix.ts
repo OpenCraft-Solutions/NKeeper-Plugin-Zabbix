@@ -1,4 +1,4 @@
-import { ApiError } from '@nkeeper/sdk'
+import { ApiError, type TrustPrompt } from '@nkeeper/sdk'
 
 /** What the plugin's endpoints answer (backend/ZabbixQueries.cs, ZabbixEndpoints.cs). */
 
@@ -94,4 +94,9 @@ export function codeOf(error: unknown): string | null {
 
 export function messageOf(error: unknown, fallback: string): string {
   return error instanceof ApiError && error.message ? error.message : fallback
+}
+
+/** The certificate to trust, when Zabbix's isn't trusted yet. */
+export function presented(error: unknown): TrustPrompt | undefined {
+  return codeOf(error) === 'host_key_unknown' && error instanceof ApiError ? (error.problem as { presented?: TrustPrompt } | undefined)?.presented : undefined
 }
