@@ -19,7 +19,7 @@ NKeeper never writes to Zabbix.
 
 **Not yet:** 1.x's "copy to host" of Zabbix's hardware details.
 
-The plugin's ID is `zabbix`, and it is built in: it is signed with NKeeper's official key and installed with NKeeper. It can be turned off (§9.2). It needs SDK 1.13 (`>=1.13.0 <2.0.0`).
+The plugin's ID is `zabbix`, and it is built in: it is signed with NKeeper's official key and installed with NKeeper. It can be turned off (§9.2). It needs SDK 1.14 (`>=1.14.0 <2.0.0`), for its report.
 
 ## Layout
 
