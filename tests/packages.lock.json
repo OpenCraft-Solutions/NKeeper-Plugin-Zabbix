@@ -14,15 +14,15 @@
       },
       "NKeeper.Abstractions": {
         "type": "Direct",
-        "requested": "[1.13.0, )",
-        "resolved": "1.13.0",
-        "contentHash": "7TIiWcBtmLCRCHfXc0XaPQyWdyG4sKKQWPr2KDa1T1af6bvXk3qJJZDwmEemrHaUjG2h6b31SZdStPny4N55Hw=="
+        "requested": "[1.14.0, )",
+        "resolved": "1.14.0",
+        "contentHash": "gtvMGQyuf1ltoOOIh6MXlQ7k9kh/nqiZ5HW+vAOznjb7wfEbq+FKtoI7TzZ3tBPW1FdhdXMiO1Q48D+OswOKDg=="
       },
       "NKeeper.Testing": {
         "type": "Direct",
-        "requested": "[1.13.0, )",
-        "resolved": "1.13.0",
-        "contentHash": "7GLtemXkwKdAjO1mF7nj9hUWrreaVnEKNhEXveg6/Wza4gTwaddM3HaxDGNA7J/beS0O9PYMM3O9CgWIbe5dkQ==",
+        "requested": "[1.14.0, )",
+        "resolved": "1.14.0",
+        "contentHash": "c2iOjpV8MBeFIL1JtCcbo4u8alUdpPa5j67/ICZA2KuPmY4E3uU+U+GcGxm67jNYKS+WRhiXGn4ZhRwCGxhjFQ==",
         "dependencies": {
           "Npgsql": "10.0.3",
           "SSH.NET": "2026.0.0",
@@ -306,7 +306,7 @@
       "nkeeper.plugins.zabbix": {
         "type": "Project",
         "dependencies": {
-          "NKeeper.Abstractions": "[1.13.0, )"
+          "NKeeper.Abstractions": "[1.14.0, )"
         }
       }
     }

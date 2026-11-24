@@ -3,7 +3,7 @@
   "description": "The zabbix plugin's frontend: a host's Zabbix panel, and the settings panel with the comparison.",
   "private": true,
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@nkeeper/sdk": "npm:@opencraft-solutions/nkeeper-sdk@^1.13.0",
+    "@nkeeper/sdk": "npm:@opencraft-solutions/nkeeper-sdk@^1.14.0",
     "react": "^19.2.8"
   },
   "engines": {

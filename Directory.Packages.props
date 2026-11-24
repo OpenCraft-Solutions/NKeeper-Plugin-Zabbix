@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup Label="NKeeper SDK (docs/architecture.md §9)">
-    <PackageVersion Include="NKeeper.Abstractions" Version="1.13.0" />
-    <PackageVersion Include="NKeeper.Plugin.Build" Version="1.13.0" />
-    <PackageVersion Include="NKeeper.Testing" Version="1.13.0" />
+    <PackageVersion Include="NKeeper.Abstractions" Version="1.14.0" />
+    <PackageVersion Include="NKeeper.Plugin.Build" Version="1.14.0" />
+    <PackageVersion Include="NKeeper.Testing" Version="1.14.0" />
   </ItemGroup>
 
   <ItemGroup Label="Tests">

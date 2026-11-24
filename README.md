@@ -13,13 +13,13 @@ It contributes the **`zabbix` service type** ("Zabbix", port 443, health by TLS)
 
 **A host's Zabbix panel**, in its details, for a host linked to a Zabbix host: its availability, maintenance, groups, tags, open problems by severity, latest well-known values (uptime, CPUs, memory, disk, agent and ICMP), inventory and interfaces, with links into Zabbix. Someone who can manage the host links it, searching Zabbix by name, technical name, IP address or DNS name, or unlinks it. A link is the plugin's host data (the Zabbix host's ID), audited as `zabbix.link` and `zabbix.unlink`.
 
-**The comparison**, for administrators, on the settings panel: Zabbix's hosts next to NKeeper's, as 1.x's matcher sorted them (linked; probably the same machine by MAC address, IP address, hostname or name; only in Zabbix; only in NKeeper; linked to a Zabbix host that's gone). From it, link the probable pairs, unlink the broken ones, or add the Zabbix-only hosts to NKeeper with their names, addresses, MAC address, serial number, description and tags (and host groups as `group` tags, if asked). Adding goes through core's own `POST /api/hosts`, as the administrator.
+**The comparison**, for administrators, on the settings panel and as the **Zabbix** report on the Reports page (SDK 1.14), where each NKeeper host shows in the workspace when chosen: Zabbix's hosts next to NKeeper's, as 1.x's matcher sorted them (linked; probably the same machine by MAC address, IP address, hostname or name; only in Zabbix; only in NKeeper; linked to a Zabbix host that's gone). From it, link the probable pairs, unlink the broken ones, or add the Zabbix-only hosts to NKeeper with their names, addresses, MAC address, serial number, description and tags (and host groups as `group` tags, if asked). Adding goes through core's own `POST /api/hosts`, as the administrator.
 
 NKeeper never writes to Zabbix.
 
-**Not yet:** 1.x's "copy to host" of Zabbix's hardware details, and its Zabbix report page.
+**Not yet:** 1.x's "copy to host" of Zabbix's hardware details.
 
-The plugin's ID is `zabbix`, and it is built in: it is signed with NKeeper's official key and installed with NKeeper. It can be turned off (§9.2). It needs SDK 1.13 (`>=1.13.0 <2.0.0`).
+The plugin's ID is `zabbix`, and it is built in: it is signed with NKeeper's official key and installed with NKeeper. It can be turned off (§9.2). It needs SDK 1.14 (`>=1.14.0 <2.0.0`), for its report.
 
 ## Layout
 
